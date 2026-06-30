@@ -7,28 +7,30 @@
 
 import Foundation
 import Network
-import Combine
+import Observation
 
-/// Observable reachability monitor backed by `NWPathMonitor`.
+/// Observable reachability monitor backed by `NWPathMonitor`, using the modern
+/// Observation framework (iOS 17+).
 ///
 /// ```swift
-/// @StateObject private var monitor = NetworkMonitor.shared
+/// @State private var monitor = NetworkMonitor.shared
 /// if !monitor.isConnected { showOfflineBanner() }
 /// ```
 @MainActor
-public final class NetworkMonitor: ObservableObject {
+@Observable
+public final class NetworkMonitor {
     public static let shared = NetworkMonitor()
 
     public enum Connection: Sendable {
         case wifi, cellular, wired, other, none
     }
 
-    @Published public private(set) var isConnected: Bool = true
-    @Published public private(set) var isExpensive: Bool = false
-    @Published public private(set) var connection: Connection = .other
+    public private(set) var isConnected: Bool = true
+    public private(set) var isExpensive: Bool = false
+    public private(set) var connection: Connection = .other
 
-    private let monitor = NWPathMonitor()
-    private let queue = DispatchQueue(label: "com.anvora.networkmonitor")
+    @ObservationIgnored private let monitor = NWPathMonitor()
+    @ObservationIgnored private let queue = DispatchQueue(label: "com.anvora.networkmonitor")
 
     public init() {
         start()

@@ -38,13 +38,20 @@ let keychain = Keychain()
 keychain.set("secret-token", for: "authToken")
 let token = keychain.string(for: "authToken")
 
-// Reachability (SwiftUI)
-@StateObject private var monitor = NetworkMonitor.shared
+// Reachability (SwiftUI, Observation framework)
+@State private var monitor = NetworkMonitor.shared
+
+// Retry with exponential backoff
+let data = try await withRetry { try await fetch() }
+
+// Combine event bus
+let bus = EventBus<AppEvent>()
+bus.publisher.sink { handle($0) }.store(in: &cancellables)
 ```
 
 ## Requirements
 
-- iOS 16.0+ · Swift 5.9+
+- iOS 17.0+ · Swift 5.9+
 
 ## License
 
