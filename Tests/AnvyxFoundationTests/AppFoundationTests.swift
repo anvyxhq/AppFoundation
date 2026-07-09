@@ -6,7 +6,7 @@
 //
 
 import XCTest
-@testable import AppFoundation
+@testable import AnvyxFoundation
 
 final class AppFoundationTests: XCTestCase {
     func testSafeSubscript() {

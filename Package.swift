@@ -7,10 +7,13 @@ let package = Package(
         .iOS(.v17)
     ],
     products: [
-        .library(name: "AppFoundation", targets: ["AppFoundation"]),
+        .library(name: "AnvyxFoundation", targets: ["AnvyxFoundation"]),
+        .library(name: "AnvyxDeviceKit", targets: ["AnvyxDeviceKit"]),
     ],
     targets: [
-        .target(name: "AppFoundation"),
-        .testTarget(name: "AppFoundationTests", dependencies: ["AppFoundation"]),
+        .target(name: "AnvyxFoundation"),
+        .target(name: "AnvyxDeviceKit"),
+        .testTarget(name: "AnvyxFoundationTests", dependencies: ["AnvyxFoundation"]),
+        .testTarget(name: "AnvyxDeviceKitTests", dependencies: ["AnvyxDeviceKit"]),
     ]
 )
