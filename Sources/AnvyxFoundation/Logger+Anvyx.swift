@@ -1,5 +1,5 @@
 //
-//  Logger+Anvora.swift
+//  Logger+Anvyx.swift
 //  AppFoundation
 //
 //  Created by AnhPT on 02/07/2026.
@@ -15,7 +15,7 @@ import OSLog
 /// ```
 public enum AppLog {
     /// Override once at launch to group all logs under your app's bundle id.
-    public static var subsystem: String = Bundle.main.bundleIdentifier ?? "AnvoraKit"
+    public static var subsystem: String = Bundle.main.bundleIdentifier ?? "AnvyxKit"
 
     public static let app      = Logger(subsystem: subsystem, category: "app")
     public static let network  = Logger(subsystem: subsystem, category: "network")

@@ -30,7 +30,7 @@ public final class NetworkMonitor {
     public private(set) var connection: Connection = .other
 
     @ObservationIgnored private let monitor = NWPathMonitor()
-    @ObservationIgnored private let queue = DispatchQueue(label: "com.anvora.networkmonitor")
+    @ObservationIgnored private let queue = DispatchQueue(label: "com.anvyx.networkmonitor")
 
     public init() {
         start()

@@ -13,7 +13,7 @@ import Security
 public struct Keychain: Sendable {
     private let service: String
 
-    public init(service: String = Bundle.main.bundleIdentifier ?? "AnvoraKit") {
+    public init(service: String = Bundle.main.bundleIdentifier ?? "AnvyxKit") {
         self.service = service
     }
 
