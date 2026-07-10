@@ -8,9 +8,10 @@
 import UIKit
 
 public extension DeviceScreen {
-    /// Logical screen width / height (points).
-    static var width: CGFloat { UIScreen.main.bounds.width }
-    static var height: CGFloat { UIScreen.main.bounds.height }
+    /// Logical screen width / height (points). Main-actor because it reads
+    /// `UIScreen.main`, which is main-actor isolated.
+    @MainActor static var width: CGFloat { UIScreen.main.bounds.width }
+    @MainActor static var height: CGFloat { UIScreen.main.bounds.height }
 }
 
 /// Coarse device size class based on the screen's short edge.
@@ -19,6 +20,7 @@ public enum DeviceClass: Sendable {
     case regular   // standard phones
     case large     // Max phones / iPad
 
+    @MainActor
     public static var current: DeviceClass {
         let shortEdge = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
         switch shortEdge {

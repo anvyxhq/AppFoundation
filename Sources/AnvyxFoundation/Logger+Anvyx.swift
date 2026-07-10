@@ -14,14 +14,22 @@ import OSLog
 /// log.debug("Fetching \(url)")
 /// ```
 public enum AppLog {
-    /// Override once at launch to group all logs under your app's bundle id.
-    public static var subsystem: String = Bundle.main.bundleIdentifier ?? "AnvyxKit"
+    // Thread-safe backing store so `subsystem` is not nonisolated global mutable
+    // state under strict concurrency. Loggers are computed (not stored) so a
+    // launch-time override actually applies to every logger created afterwards.
+    private static let _subsystem = LockedValue(Bundle.main.bundleIdentifier ?? "AnvyxKit")
 
-    public static let app      = Logger(subsystem: subsystem, category: "app")
-    public static let network  = Logger(subsystem: subsystem, category: "network")
-    public static let purchase = Logger(subsystem: subsystem, category: "purchase")
-    public static let ads      = Logger(subsystem: subsystem, category: "ads")
-    public static let ui       = Logger(subsystem: subsystem, category: "ui")
+    /// Override once at launch to group all logs under your app's bundle id.
+    public static var subsystem: String {
+        get { _subsystem.current }
+        set { _subsystem.set(newValue) }
+    }
+
+    public static var app: Logger      { Logger(subsystem: subsystem, category: "app") }
+    public static var network: Logger  { Logger(subsystem: subsystem, category: "network") }
+    public static var purchase: Logger { Logger(subsystem: subsystem, category: "purchase") }
+    public static var ads: Logger      { Logger(subsystem: subsystem, category: "ads") }
+    public static var ui: Logger       { Logger(subsystem: subsystem, category: "ui") }
 
     /// Make a logger for a custom category.
     public static func category(_ name: String) -> Logger {

@@ -17,6 +17,7 @@ final class DeviceLayoutTests: XCTestCase {
         XCTAssertEqual(2.clamped(to: 0...3), 2)
     }
 
+    @MainActor
     func testDeviceClassIsResolved() {
         let known: [DeviceClass] = [.compact, .regular, .large]
         XCTAssertTrue(known.contains(DeviceClass.current))

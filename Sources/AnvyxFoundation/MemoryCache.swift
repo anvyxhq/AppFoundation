@@ -9,6 +9,11 @@ import Foundation
 
 /// A thread-safe in-memory cache with optional per-entry TTL, backed by `NSCache`
 /// (so it evicts under memory pressure). Keys must be `Hashable`.
+///
+/// `@unchecked Sendable` is retained deliberately: the only stored property is an
+/// `NSCache`, which Apple documents as thread-safe but does not (yet) declare
+/// `Sendable`. All access goes through that internally-synchronized store, so
+/// the wrapper is safe to share across actors.
 public final class MemoryCache<Key: Hashable, Value>: @unchecked Sendable {
     private final class Entry {
         let value: Value

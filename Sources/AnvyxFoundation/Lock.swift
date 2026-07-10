@@ -8,36 +8,32 @@
 import Foundation
 import os
 
-/// A lightweight non-recursive lock backed by `os_unfair_lock`.
+/// A lightweight non-recursive lock backed by `OSAllocatedUnfairLock`.
 ///
 /// Prefer isolating state in an `actor` for async code. Reach for `Lock` only
 /// for fast, synchronous critical sections in non-async contexts.
-public final class Lock: @unchecked Sendable {
-    private let unfairLock: os_unfair_lock_t
+///
+/// `Sendable` (not `@unchecked`): all synchronization lives inside the
+/// `OSAllocatedUnfairLock` value, which Apple already audits as `Sendable`, so
+/// this wrapper is safe by construction.
+public final class Lock: Sendable {
+    private let unfairLock = OSAllocatedUnfairLock()
 
-    public init() {
-        unfairLock = .allocate(capacity: 1)
-        unfairLock.initialize(to: os_unfair_lock())
-    }
-
-    deinit {
-        unfairLock.deinitialize(count: 1)
-        unfairLock.deallocate()
-    }
+    public init() {}
 
     public func lock() {
-        os_unfair_lock_lock(unfairLock)
+        unfairLock.lock()
     }
 
     public func unlock() {
-        os_unfair_lock_unlock(unfairLock)
+        unfairLock.unlock()
     }
 
     /// Run `body` while holding the lock.
     @discardableResult
     public func withLock<T>(_ body: () throws -> T) rethrows -> T {
-        os_unfair_lock_lock(unfairLock)
-        defer { os_unfair_lock_unlock(unfairLock) }
+        unfairLock.lock()
+        defer { unfairLock.unlock() }
         return try body()
     }
 }
@@ -47,27 +43,31 @@ public final class Lock: @unchecked Sendable {
 /// The synchronous counterpart to isolating state in an `actor`, for use in
 /// non-async code. Comparable to `NIOLockedValueBox` or Point-Free's
 /// `LockIsolated`.
-public final class LockedValue<Value>: @unchecked Sendable {
-    private let lock = Lock()
-    private var value: Value
+///
+/// `Sendable` (not `@unchecked`): the protected `Value` is stored inside an
+/// `OSAllocatedUnfairLock`, which is unconditionally `Sendable`. Access goes
+/// through `withLockUnchecked` so a non-`Sendable` `Value` is still supported —
+/// the lock guarantees exclusive access.
+public final class LockedValue<Value>: Sendable {
+    private let storage: OSAllocatedUnfairLock<Value>
 
     public init(_ value: Value) {
-        self.value = value
+        storage = OSAllocatedUnfairLock(uncheckedState: value)
     }
 
     /// Access — and optionally mutate — the protected value while holding the lock.
     @discardableResult
     public func withLock<T>(_ body: (inout Value) throws -> T) rethrows -> T {
-        try lock.withLock { try body(&value) }
+        try storage.withLockUnchecked { try body(&$0) }
     }
 
     /// A snapshot of the current value.
     public var current: Value {
-        lock.withLock { value }
+        storage.withLockUnchecked { $0 }
     }
 
     /// Replace the protected value.
     public func set(_ newValue: Value) {
-        lock.withLock { value = newValue }
+        storage.withLockUnchecked { $0 = newValue }
     }
 }
