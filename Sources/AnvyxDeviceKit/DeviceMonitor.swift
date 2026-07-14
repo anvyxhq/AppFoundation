@@ -62,19 +62,24 @@ public final class DeviceMonitor {
 
     private func observe() {
         stream(UIDevice.batteryLevelDidChangeNotification) { [weak self] in
-            self?.batteryLevel = max(0, Double(UIDevice.current.batteryLevel))
+            guard let self else { return }
+            self.batteryLevel = max(0, Double(UIDevice.current.batteryLevel))
         }
         stream(UIDevice.batteryStateDidChangeNotification) { [weak self] in
-            self?.batteryState = Self.map(UIDevice.current.batteryState)
+            guard let self else { return }
+            self.batteryState = Self.map(UIDevice.current.batteryState)
         }
         stream(.NSProcessInfoPowerStateDidChange) { [weak self] in
-            self?.isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
+            guard let self else { return }
+            self.isLowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
         }
         stream(ProcessInfo.thermalStateDidChangeNotification) { [weak self] in
-            self?.thermalState = ProcessInfo.processInfo.thermalState
+            guard let self else { return }
+            self.thermalState = ProcessInfo.processInfo.thermalState
         }
         stream(UIDevice.orientationDidChangeNotification) { [weak self] in
-            self?.orientation = UIDevice.current.orientation
+            guard let self else { return }
+            self.orientation = UIDevice.current.orientation
         }
     }
 

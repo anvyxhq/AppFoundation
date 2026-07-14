@@ -42,7 +42,10 @@ public actor AsyncEventBus<Event: Sendable> {
         return AsyncStream { continuation in
             continuations[id] = continuation
             continuation.onTermination = { [weak self] _ in
-                Task { await self?.unsubscribe(id) }
+                Task {
+                    guard let self else { return }
+                    await self.unsubscribe(id)
+                }
             }
         }
     }

@@ -39,7 +39,8 @@ public final class NetworkMonitor {
     private func start() {
         monitor.pathUpdateHandler = { [weak self] path in
             Task { @MainActor in
-                self?.apply(path)
+                guard let self else { return }
+                self.apply(path)
             }
         }
         monitor.start(queue: queue)
