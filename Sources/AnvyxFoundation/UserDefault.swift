@@ -65,6 +65,30 @@ public struct CodableUserDefault<Value: Codable> {
     }
 }
 
+/// A property wrapper for `RawRepresentable` values (String/Int-backed enums) — the raw value
+/// is what gets persisted.
+///
+/// ```swift
+/// @RawUserDefault("files.sortField", default: .modified) static var sortField: SortField
+/// ```
+@propertyWrapper
+public struct RawUserDefault<Value: RawRepresentable> {
+    private let key: String
+    private let defaultValue: Value
+    private let store: UserDefaults
+
+    public init(_ key: String, default defaultValue: Value, store: UserDefaults = .standard) {
+        self.key = key
+        self.defaultValue = defaultValue
+        self.store = store
+    }
+
+    public var wrappedValue: Value {
+        get { (store.object(forKey: key) as? Value.RawValue).flatMap(Value.init(rawValue:)) ?? defaultValue }
+        set { store.set(newValue.rawValue, forKey: key) }
+    }
+}
+
 /// Lets the wrapper detect `nil` so it can clear the key instead of storing NSNull.
 public protocol AnyOptional {
     var isNil: Bool { get }

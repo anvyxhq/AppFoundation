@@ -40,12 +40,15 @@ import UIKit
 /// Display metrics. `@MainActor` because `UIScreen` is main-actor isolated.
 @MainActor
 public enum DeviceScreen {
-    public static var scale: CGFloat { UIScreen.main.scale }
-    public static var nativeBounds: CGRect { UIScreen.main.nativeBounds }
-    public static var bounds: CGRect { UIScreen.main.bounds }
+    /// The active scene's screen (context-based); `UIScreen.main` was deprecated in iOS 26.
+    static var current: UIScreen? { AppWindow.screen }
+
+    public static var scale: CGFloat { current?.scale ?? 1 }
+    public static var nativeBounds: CGRect { current?.nativeBounds ?? .zero }
+    public static var bounds: CGRect { current?.bounds ?? .zero }
 
     /// Screen brightness in `0...1`.
-    public static var brightness: Double { Double(UIScreen.main.brightness) }
+    public static var brightness: Double { Double(current?.brightness ?? 0) }
 }
 #endif
 

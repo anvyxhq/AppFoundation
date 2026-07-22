@@ -8,10 +8,9 @@
 import UIKit
 
 public extension DeviceScreen {
-    /// Logical screen width / height (points). Main-actor because it reads
-    /// `UIScreen.main`, which is main-actor isolated.
-    @MainActor static var width: CGFloat { UIScreen.main.bounds.width }
-    @MainActor static var height: CGFloat { UIScreen.main.bounds.height }
+    /// Logical screen width / height (points), read from the active window scene.
+    @MainActor static var width: CGFloat { bounds.width }
+    @MainActor static var height: CGFloat { bounds.height }
 }
 
 /// Coarse device size class based on the screen's short edge.
@@ -22,7 +21,8 @@ public enum DeviceClass: Sendable {
 
     @MainActor
     public static var current: DeviceClass {
-        let shortEdge = min(UIScreen.main.bounds.width, UIScreen.main.bounds.height)
+        let bounds = DeviceScreen.bounds
+        let shortEdge = min(bounds.width, bounds.height)
         switch shortEdge {
         case ..<375: return .compact
         case ..<430: return .regular
@@ -44,6 +44,13 @@ public enum AppWindow {
             return window
         }
         return scenes.compactMap { $0.keyWindow }.first
+    }
+
+    /// The screen backing the active window scene — the context-based replacement for the
+    /// deprecated `UIScreen.main`. Falls back to the first connected scene's screen.
+    public static var screen: UIScreen? {
+        key?.windowScene?.screen
+            ?? UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.screen }.first
     }
 
     /// The current status-bar height from the active scene.
