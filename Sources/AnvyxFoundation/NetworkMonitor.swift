@@ -29,21 +29,23 @@ public final class NetworkMonitor {
     public private(set) var isExpensive: Bool = false
     public private(set) var connection: Connection = .other
 
-    @ObservationIgnored private let monitor = NWPathMonitor()
-    @ObservationIgnored private let queue = DispatchQueue(label: "com.anvyx.networkmonitor")
+    @ObservationIgnored private var watcher: Task<Void, Never>?
 
     public init() {
         start()
     }
 
+    deinit { watcher?.cancel() }
+
+    /// `NWPathMonitor` is an `AsyncSequence` — iterating replaces the callback +
+    /// dedicated dispatch queue + per-event main-actor relay of the old API.
     private func start() {
-        monitor.pathUpdateHandler = { [weak self] path in
-            Task { @MainActor in
+        watcher = Task { [weak self] in
+            for await path in NWPathMonitor() {
                 guard let self else { return }
                 self.apply(path)
             }
         }
-        monitor.start(queue: queue)
     }
 
     private func apply(_ path: NWPath) {
@@ -60,7 +62,4 @@ public final class NetworkMonitor {
         }
     }
 
-    deinit {
-        monitor.cancel()
-    }
 }
