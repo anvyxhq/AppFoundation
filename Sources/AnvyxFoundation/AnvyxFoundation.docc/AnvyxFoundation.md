@@ -41,7 +41,6 @@ let result = try await withRetry(.default) { try await api.fetch() }
 - ``NetworkMonitor``
 - ``Loadable``
 
-### Diagnostics & Feedback
+### Diagnostics
 - ``AppLog``
 - ``PerfTrace``
-- ``Haptics``

@@ -8,8 +8,14 @@
 import Foundation
 
 /// Maps raw hardware identifiers to marketing names and capability groups.
-/// Intentionally lean: a curated table of recent hardware with a graceful
-/// fallback to the raw identifier for anything newer.
+///
+/// Covers every iPhone and iPad that runs iOS/iPadOS 17 or later (the package's
+/// deployment floor), with a graceful fallback to the raw identifier for anything
+/// newer. Names and identifiers are transcribed from Xcode's own device table
+/// (`iPhoneOS.platform/usr/standalone/device_traits.db`).
+///
+/// iPads ship under two identifiers per model — Wi-Fi and cellular — so both are
+/// listed; omitting the twin makes cellular iPads fall through to the raw string.
 enum DeviceModel {
     static func marketingName(for identifier: String) -> String {
         names[identifier] ?? identifier
@@ -18,13 +24,17 @@ enum DeviceModel {
     /// Devices that ship with a Dynamic Island.
     static let dynamicIslandIdentifiers: Set<String> = [
         "iPhone15,2", "iPhone15,3",            // 14 Pro / Pro Max
+        "iPhone15,4", "iPhone15,5",            // 15 / 15 Plus
         "iPhone16,1", "iPhone16,2",            // 15 Pro / Pro Max
         "iPhone17,3", "iPhone17,4",            // 16 / 16 Plus
         "iPhone17,1", "iPhone17,2",            // 16 Pro / Pro Max
-        "iPhone15,4", "iPhone15,5",            // 15 / 15 Plus
+        "iPhone18,3",                          // 17
+        "iPhone18,1", "iPhone18,2",            // 17 Pro / Pro Max
+        "iPhone18,4",                          // Air
     ]
 
-    /// Face ID devices with a notch (no Dynamic Island).
+    /// Face ID devices with a notch (no Dynamic Island). The budget "e" models keep
+    /// the notch: 16e and 17e carry the same panel and screen mask as the iPhone 14.
     static let notchIdentifiers: Set<String> = [
         "iPhone10,3", "iPhone10,6",            // X
         "iPhone11,2", "iPhone11,4", "iPhone11,6", "iPhone11,8", // XS/XS Max/XR
@@ -32,10 +42,20 @@ enum DeviceModel {
         "iPhone13,1", "iPhone13,2", "iPhone13,3", "iPhone13,4", // 12 line
         "iPhone14,2", "iPhone14,3", "iPhone14,4", "iPhone14,5", // 13 line
         "iPhone14,7", "iPhone14,8",            // 14 / 14 Plus
+        "iPhone17,5",                          // 16e
+        "iPhone18,5",                          // 17e
     ]
 
     private static let names: [String: String] = [
-        // iPhone
+        // MARK: iPhone
+        // iPhone X predates the iOS 17 floor, but `Device(identifier:)` is public and
+        // `notchIdentifiers` lists it, so keep the two tables agreeing.
+        "iPhone10,3": "iPhone X",
+        "iPhone10,6": "iPhone X",
+        "iPhone11,2": "iPhone XS",
+        "iPhone11,4": "iPhone XS Max",
+        "iPhone11,6": "iPhone XS Max",
+        "iPhone11,8": "iPhone XR",
         "iPhone12,1": "iPhone 11",
         "iPhone12,3": "iPhone 11 Pro",
         "iPhone12,5": "iPhone 11 Pro Max",
@@ -61,16 +81,93 @@ enum DeviceModel {
         "iPhone17,4": "iPhone 16 Plus",
         "iPhone17,1": "iPhone 16 Pro",
         "iPhone17,2": "iPhone 16 Pro Max",
-        // iPad (recent)
+        "iPhone17,5": "iPhone 16e",
+        "iPhone18,3": "iPhone 17",
+        "iPhone18,1": "iPhone 17 Pro",
+        "iPhone18,2": "iPhone 17 Pro Max",
+        "iPhone18,4": "iPhone Air",
+        "iPhone18,5": "iPhone 17e",
+
+        // MARK: iPad
+        "iPad7,5": "iPad (6th generation)",
+        "iPad7,6": "iPad (6th generation)",
+        "iPad7,11": "iPad (7th generation)",
+        "iPad7,12": "iPad (7th generation)",
+        "iPad11,1": "iPad mini (5th generation)",
+        "iPad11,2": "iPad mini (5th generation)",
+        "iPad11,3": "iPad Air (3rd generation)",
+        "iPad11,4": "iPad Air (3rd generation)",
+        "iPad11,6": "iPad (8th generation)",
+        "iPad11,7": "iPad (8th generation)",
+        "iPad12,1": "iPad (9th generation)",
+        "iPad12,2": "iPad (9th generation)",
         "iPad13,1": "iPad Air (4th generation)",
+        "iPad13,2": "iPad Air (4th generation)",
         "iPad13,16": "iPad Air (5th generation)",
-        "iPad14,3": "iPad Pro 11-inch (4th generation)",
-        "iPad14,5": "iPad Pro 12.9-inch (6th generation)",
+        "iPad13,17": "iPad Air (5th generation)",
+        "iPad13,18": "iPad (10th generation)",
+        "iPad13,19": "iPad (10th generation)",
+        "iPad14,1": "iPad mini (6th generation)",
+        "iPad14,2": "iPad mini (6th generation)",
+        "iPad14,8": "iPad Air 11-inch (M2)",
+        "iPad14,9": "iPad Air 11-inch (M2)",
+        "iPad14,10": "iPad Air 13-inch (M2)",
+        "iPad14,11": "iPad Air 13-inch (M2)",
+        "iPad15,3": "iPad Air 11-inch (M3)",
+        "iPad15,4": "iPad Air 11-inch (M3)",
+        "iPad15,5": "iPad Air 13-inch (M3)",
+        "iPad15,6": "iPad Air 13-inch (M3)",
+        "iPad15,7": "iPad (A16)",
+        "iPad15,8": "iPad (A16)",
+        "iPad16,1": "iPad mini (A17 Pro)",
+        "iPad16,2": "iPad mini (A17 Pro)",
+        "iPad16,8": "iPad Air 11-inch (M4)",
+        "iPad16,9": "iPad Air 11-inch (M4)",
+        "iPad16,10": "iPad Air 13-inch (M4)",
+        "iPad16,11": "iPad Air 13-inch (M4)",
+
+        // MARK: iPad Pro
+        "iPad7,1": "iPad Pro (12.9-inch) (2nd generation)",
+        "iPad7,2": "iPad Pro (12.9-inch) (2nd generation)",
+        "iPad7,3": "iPad Pro (10.5-inch)",
+        "iPad7,4": "iPad Pro (10.5-inch)",
+        "iPad8,1": "iPad Pro (11-inch)",
+        "iPad8,2": "iPad Pro (11-inch)",
+        "iPad8,3": "iPad Pro (11-inch)",
+        "iPad8,4": "iPad Pro (11-inch)",
+        "iPad8,5": "iPad Pro (12.9-inch) (3rd generation)",
+        "iPad8,6": "iPad Pro (12.9-inch) (3rd generation)",
+        "iPad8,7": "iPad Pro (12.9-inch) (3rd generation)",
+        "iPad8,8": "iPad Pro (12.9-inch) (3rd generation)",
+        "iPad8,9": "iPad Pro (11-inch) (2nd generation)",
+        "iPad8,10": "iPad Pro (11-inch) (2nd generation)",
+        "iPad8,11": "iPad Pro (12.9-inch) (4th generation)",
+        "iPad8,12": "iPad Pro (12.9-inch) (4th generation)",
+        "iPad13,4": "iPad Pro (11-inch) (3rd generation)",
+        "iPad13,5": "iPad Pro (11-inch) (3rd generation)",
+        "iPad13,6": "iPad Pro (11-inch) (3rd generation)",
+        "iPad13,7": "iPad Pro (11-inch) (3rd generation)",
+        "iPad13,8": "iPad Pro (12.9-inch) (5th generation)",
+        "iPad13,9": "iPad Pro (12.9-inch) (5th generation)",
+        "iPad13,10": "iPad Pro (12.9-inch) (5th generation)",
+        "iPad13,11": "iPad Pro (12.9-inch) (5th generation)",
+        "iPad14,3": "iPad Pro (11-inch) (4th generation)",
+        "iPad14,4": "iPad Pro (11-inch) (4th generation)",
+        "iPad14,5": "iPad Pro (12.9-inch) (6th generation)",
+        "iPad14,6": "iPad Pro (12.9-inch) (6th generation)",
         "iPad16,3": "iPad Pro 11-inch (M4)",
+        "iPad16,4": "iPad Pro 11-inch (M4)",
         "iPad16,5": "iPad Pro 13-inch (M4)",
-        // iPod
+        "iPad16,6": "iPad Pro 13-inch (M4)",
+        "iPad17,1": "iPad Pro 11-inch (M5)",
+        "iPad17,2": "iPad Pro 11-inch (M5)",
+        "iPad17,3": "iPad Pro 13-inch (M5)",
+        "iPad17,4": "iPad Pro 13-inch (M5)",
+
+        // MARK: iPod
         "iPod9,1": "iPod touch (7th generation)",
-        // Simulator
+
+        // MARK: Simulator
         "Simulator": "Simulator",
     ]
 }
