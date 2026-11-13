@@ -33,6 +33,7 @@ let result = try await withRetry(.default) { try await api.fetch() }
 - ``Throttler``
 - ``Lock``
 - ``LockedValue``
+- ``OneShotContinuation``
 - ``RetryPolicy``
 
 ### Events & State

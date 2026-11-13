@@ -43,6 +43,10 @@ public struct RetryPolicy: Sendable {
 
 /// Runs `operation`, retrying on thrown errors per `policy`. `shouldRetry` lets
 /// you skip retries for non-transient errors (e.g. 4xx).
+///
+/// Cancellation ends the retry loop: a cancelled task starts no further attempt,
+/// a backoff sleep is cut short, and a `CancellationError` thrown by `operation`
+/// is never retried. In each case `CancellationError` is thrown.
 public func withRetry<T: Sendable>(
     _ policy: RetryPolicy = .default,
     shouldRetry: @Sendable (Error) -> Bool = { _ in true },
@@ -50,6 +54,7 @@ public func withRetry<T: Sendable>(
 ) async throws -> T {
     var lastError: Error?
     for attempt in 0..<policy.maxAttempts {
+        try Task.checkCancellation()
         do {
             return try await operation()
         } catch is CancellationError {
@@ -59,7 +64,8 @@ public func withRetry<T: Sendable>(
             let isLast = attempt == policy.maxAttempts - 1
             guard !isLast, shouldRetry(error) else { break }
             let delay = max(0, policy.delay(forAttempt: attempt))
-            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+            // Throws `CancellationError` when cancelled mid-backoff.
+            try await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
         }
     }
     throw lastError ?? CancellationError()

@@ -25,8 +25,16 @@ let package = Package(
         .library(name: "AnvyxDeviceKit", targets: ["AnvyxDeviceKit"]),
     ],
     targets: [
-        .target(name: "AnvyxFoundation", swiftSettings: concurrencyBaseline),
-        .target(name: "AnvyxDeviceKit", swiftSettings: concurrencyBaseline),
+        .target(
+            name: "AnvyxFoundation",
+            resources: [.process("PrivacyInfo.xcprivacy")],
+            swiftSettings: concurrencyBaseline
+        ),
+        .target(
+            name: "AnvyxDeviceKit",
+            resources: [.process("PrivacyInfo.xcprivacy")],
+            swiftSettings: concurrencyBaseline
+        ),
         .testTarget(name: "AnvyxFoundationTests", dependencies: ["AnvyxFoundation"], swiftSettings: concurrencyBaseline),
         .testTarget(name: "AnvyxDeviceKitTests", dependencies: ["AnvyxDeviceKit"], swiftSettings: concurrencyBaseline),
     ]

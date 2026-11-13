@@ -29,6 +29,7 @@ if monitor.isLowPowerMode || monitor.thermalState == .serious { throttleWork() }
 
 ### Capabilities
 - ``DeviceScreen``
+- ``ScreenBrightness``
 - ``DeviceStorage``
 - ``DeviceBiometrics``
 - ``AppWindow``
