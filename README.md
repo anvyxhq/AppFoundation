@@ -2,7 +2,7 @@
 
 Foundational utilities shared across iOS apps — logging, reachability, persistence, and everyday extensions. Zero third-party dependencies.
 
-[![Swift](https://img.shields.io/badge/Swift-5.9+-orange.svg)](https://swift.org)
+[![Swift](https://img.shields.io/badge/Swift-6.2+-orange.svg)](https://swift.org)
 [![Platform](https://img.shields.io/badge/iOS-17%2B-blue.svg)](https://developer.apple.com/ios/)
 [![SPM](https://img.shields.io/badge/SPM-compatible-brightgreen.svg)](https://swift.org/package-manager/)
 
@@ -19,6 +19,8 @@ Foundational utilities shared across iOS apps — logging, reachability, persist
 ```swift
 .package(url: "https://github.com/anvyxhq/AppFoundation.git", branch: "main")
 ```
+
+> The latest tagged release predates the current `Anvyx*` module names, so depend on `main` until the next tagged release.
 
 ## Usage
 
@@ -51,7 +53,7 @@ bus.publisher.sink { handle($0) }.store(in: &cancellables)
 
 ## Requirements
 
-- iOS 17+ · Swift 5.9+
+- iOS 17+ · Swift 6.2+ (Xcode 26+)
 
 ## License
 
